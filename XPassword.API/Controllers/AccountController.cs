@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using XPassword.API.Models.Requests;
 using XPassword.Database.Logic;
 using XPassword.Database.Model.Exceptions;
 using XPassword.Security;
@@ -12,11 +14,17 @@ public class AccountController : ControllerBase
 {
     public AccountController() { }
 
-    [HttpPost("Login")]
+    [HttpPost("LogIn")]
     public ObjectResult RequestLoginToken([FromBody] Models.Requests.LoginRequest loginRequest)
     {
         try
         {
+            using var logic = new Accounts();
+            var validCredentials = logic.LogIn(loginRequest.Email, loginRequest.Password);
+
+            if (!validCredentials) 
+                return Ok("Email and/or password are/is invalid!");
+
             var token = JwtTokenManager.GenerateJwtToken(loginRequest.Email, 300);
 
             return Ok(new {  accessToken = token, expiresIn = 300 });
@@ -33,17 +41,17 @@ public class AccountController : ControllerBase
     }
 
     [HttpPut("SignIn")]
-    public ObjectResult CreateAccount([FromBody] string username, [FromBody] string email, [FromBody] string password, [FromBody] string confirmedPassword)
+    public ObjectResult CreateAccount([FromBody] AccountCreationRequest request)
     {
         try
         {
             using var logic = new Accounts();
-            var createdAccount = logic.CreateAccount(username, email, password, confirmedPassword);
+            var createdAccount = logic.CreateAccount(request.Username, request.Email, request.Password, request.ConfirmPassword);
 
             if (!createdAccount)
-                Ok("Unexpected error");
+                return Ok("Unexpected error");
 
-            var token = JwtTokenManager.GenerateJwtToken(email, 300);
+            var token = JwtTokenManager.GenerateJwtToken(request.Email, 300);
 
             return Ok(new { accessToken = token, expiresIn = 300 });
         }
@@ -62,6 +70,9 @@ public class AccountController : ControllerBase
     [HttpDelete("DeleteAccount")]
     public ObjectResult DeteleAccount()
     {
-        return Ok("Tested");
+        var username = User.Identity?.Name;
+        var userId = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+        return Ok(new { message = "This is a protected API endpoint", username, userId });
     }
 }

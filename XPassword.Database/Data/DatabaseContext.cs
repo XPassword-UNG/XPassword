@@ -10,7 +10,7 @@ internal sealed class DatabaseContext : IDisposable
 
     internal DatabaseContext()
     {
-        var path = Path.Combine(Environment.CurrentDirectory, "MelodyMart.sqlite");
+        var path = Path.Combine(Environment.CurrentDirectory, "XPassword.sqlite");
         _connection = new SQLiteConnection($"Data Source={path}");
 
         if (!File.Exists(path))

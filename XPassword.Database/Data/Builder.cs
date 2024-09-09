@@ -5,6 +5,24 @@ namespace XPassword.Database.Data;
 
 internal static class Builder
 {
+    internal static bool BuildEmailExist(SQLiteDataReader reader)
+    {
+        if (!reader.HasRows) 
+            return false;
+
+        while (reader.Read())
+        {
+            if ((string)reader["Email"] != null)
+            {
+                reader.Close();
+                return true;
+            }
+        }
+
+        reader.Close();
+        return false;
+    }
+
     internal static List<Account> BuildAccount(SQLiteDataReader reader)
     {
         var accounts = new List<Account>();
@@ -16,7 +34,7 @@ internal static class Builder
         {
             accounts.Add(new Account
             {
-                Id = (int)reader["Id"],
+                Id = (long)reader["Id"],
                 Email = (string)reader["Email"],
                 Name = (string)reader["Name"],
                 HPassword = (string)reader["HPassword"]

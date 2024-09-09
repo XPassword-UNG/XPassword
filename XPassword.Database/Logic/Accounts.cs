@@ -10,6 +10,7 @@ using XPassword.Database.Model;
 using XPassword.Database.Model.Exceptions;
 using XPassword.Database.ResourceAccess;
 using XPassword.Database.ResourceAccess.Interfaces;
+using XPassword.Security;
 
 namespace XPassword.Database.Logic;
 
@@ -34,7 +35,23 @@ public sealed class Accounts(int? userId = null) : IDisposable
         if (validationException.HasError)
             throw validationException;
 
+        if (!_resourceAccess.CheckIfAccountExists(email))
+            return false;
+
         return _resourceAccess.CreateAccount(username, email, password);
+    }
+
+    public bool LogIn(string email, string password)
+    {
+        if (!_resourceAccess.CheckIfAccountExists(email))
+            return false;
+
+        var account = _resourceAccess.GetAccount(email, password);
+
+        if (account == null)
+            return false;
+
+        return Hasher.VerifyPassword(account.HPassword, password);
     }
 
     #region [ Util ]
