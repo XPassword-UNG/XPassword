@@ -1,0 +1,7 @@
+﻿/.vs/XPassword
+/XPassword.API/bin/Debug/net8.0
+/XPassword.Database/bin/Debug/net8.0
+/XPassword.Database/obj
+/XPassword.Security/bin/Debug/net8.0
+/XPassword.Security/obj
+/XPassword.API/obj
