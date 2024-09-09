@@ -47,7 +47,7 @@ public static class EncryptionManager
             var encryptedBytes = Convert.FromBase64String(parts[1]);
             var key = GenerateKey(primaryPassword, salt);
 
-            using Aes aes = Aes.Create();
+            using var aes = Aes.Create();
             aes.Key = key;
 
             // Extrai o IV dos primeiros 16 bytes
