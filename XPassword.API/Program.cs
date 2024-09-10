@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -8,9 +9,16 @@ namespace XPassword.API;
 internal static class Program
 {
     internal static bool Created = false;
+    internal static IMapper? Mapper;
 
     internal static void Main(string[] args)
     {
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<MappingProfile>();
+        });
+        Mapper = config.CreateMapper();
+
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();

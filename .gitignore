@@ -1,6 +1,7 @@
-﻿/.vs/XPassword
+﻿/.vs
 /XPassword.API/bin
 /XPassword.API/obj
+/XPassword.API/XPassword.sqlite
 /XPassword.Database/bin
 /XPassword.Database/obj
 /XPassword.Security/bin

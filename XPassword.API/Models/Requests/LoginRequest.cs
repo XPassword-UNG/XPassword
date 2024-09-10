@@ -1,5 +1,6 @@
 ﻿namespace XPassword.API.Models.Requests
 {
+    [Serializable]
     public sealed class LoginRequest
     {
         /// <summary>
