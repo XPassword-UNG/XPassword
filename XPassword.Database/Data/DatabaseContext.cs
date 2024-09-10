@@ -7,6 +7,7 @@ internal sealed class DatabaseContext : IDisposable
     private readonly SQLiteConnection _connection;
 
     internal static readonly string ACC_TABLE = "XPASS_ACCOUNT";
+    internal static readonly string REG_TABLE = "XPASS_REGISTR";
 
     internal DatabaseContext()
     {
@@ -37,6 +38,21 @@ internal sealed class DatabaseContext : IDisposable
                                 )";
 
         command.CommandText = accountTableCmd;
+        command.ExecuteNonQueryAsync().Wait();
+        command.Reset();
+
+        var registerTableCmd = $@"CREATE TABLE IF NOT EXISTS {REG_TABLE}
+                                (
+                                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    UserId INTEGER,
+                                    Name TEXT NOT NULL,
+                                    Email TEXT,
+                                    Description TEXT,
+                                    Password TEXT NOT NULL,
+                                    FOREIGN KEY (UserId) REFERENCES {ACC_TABLE}(Id)
+                                )";
+
+        command.CommandText = registerTableCmd;
         command.ExecuteNonQueryAsync().Wait();
         command.Reset();
     }

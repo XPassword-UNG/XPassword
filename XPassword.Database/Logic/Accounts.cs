@@ -1,39 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using XPassword.Database.Data;
+﻿using System.Text.RegularExpressions;
 using XPassword.Database.Model;
 using XPassword.Database.Model.Exceptions;
-using XPassword.Database.ResourceAccess;
-using XPassword.Database.ResourceAccess.Interfaces;
 using XPassword.Security;
 
 namespace XPassword.Database.Logic;
 
-public sealed class Accounts(int? userId = null) : IDisposable
+public sealed class Accounts : IDisposable
 {
-    private readonly int? _userId = userId;
-    private readonly ResourceAccess.Accounts _resourceAccess = new(userId);
+    private readonly ResourceAccess.Accounts _resourceAccess = new();
 
     public bool CreateAccount(string username, string email, string password, string confirmedPassword)
     {
-        var validationException = new ValidationException();
+        var validation = new ValidationException();
 
         if (username.Trim().Length < 5)
-            validationException.AddError("Username must have at least 5 characters!");
+            validation.AddError("Username must have at least 5 characters!");
 
         if (!IsValidEmail(email))
-            validationException.AddError("Email must be a valid one!");
+            validation.AddError("Email must be a valid one!");
 
         if (password != confirmedPassword)
-            validationException.AddError("Passwords must match!");
+            validation.AddError("Passwords must match!");
 
-        if (validationException.HasError)
-            throw validationException;
+        if (validation.HasError)
+            throw validation;
 
         if (!_resourceAccess.CheckIfAccountExists(email))
             return false;
@@ -53,6 +43,8 @@ public sealed class Accounts(int? userId = null) : IDisposable
 
         return Hasher.VerifyPassword(account.HPassword, password);
     }
+
+    public Account? GetAccount(string email, string password) => _resourceAccess.GetAccount(email, password);
 
     #region [ Util ]
     private static bool IsValidEmail(string email)

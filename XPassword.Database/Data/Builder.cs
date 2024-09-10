@@ -7,8 +7,11 @@ internal static class Builder
 {
     internal static bool BuildEmailExist(SQLiteDataReader reader)
     {
-        if (!reader.HasRows) 
+        if (!reader.HasRows)
+        {
+            reader.Close();
             return false;
+        }
 
         while (reader.Read())
         {
@@ -23,12 +26,15 @@ internal static class Builder
         return false;
     }
 
-    internal static List<Account> BuildAccount(SQLiteDataReader reader)
+    internal static List<Account> BuildAccounts(SQLiteDataReader reader)
     {
         var accounts = new List<Account>();
 
         if (!reader.HasRows)
+        {
+            reader.Close();
             return accounts;
+        }
 
         while (reader.Read())
         {
@@ -43,5 +49,32 @@ internal static class Builder
 
         reader.Close();
         return accounts;
+    }
+
+    internal static List<Register> BuildRegister(SQLiteDataReader reader)
+    {
+        var registers = new List<Register>();
+
+        if (!reader.HasRows)
+        {
+            reader.Close();
+            return registers;
+        }
+
+        while (reader.Read())
+        {
+            registers.Add(new Register
+            {
+                Id = (long)reader["Id"],
+                UserId = (long)reader["UserId"],
+                Name = (string)reader["Name"],
+                Email = (string)reader["Email"],
+                Description = (string)reader["Description"],
+                Password = (string)reader["Password"]
+            });
+        }
+
+        reader.Close();
+        return registers;
     }
 }

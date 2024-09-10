@@ -19,11 +19,12 @@ public static class JwtTokenManager
         return Convert.ToBase64String(key);
     }
 
-    public static string GenerateJwtToken(string usermail, int lifetimeInSeconds)
+    public static string GenerateJwtToken(string email, string password, int lifetimeInSeconds)
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, usermail),
+            new Claim(JwtRegisteredClaimNames.Sub, email),
+            new Claim(JwtRegisteredClaimNames.Sub, password),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -37,5 +38,14 @@ public static class JwtTokenManager
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public static (string email, string password) ExtractEmailAndPassword(ClaimsPrincipal user)
+    {
+        var claims = user.Claims.Where(c => c.Type == JwtRegisteredClaimNames.Sub).ToArray();
+        var email = claims[0]?.Value!;
+        var passrd = claims[1]?.Value!;
+
+        return (email, passrd);
     }
 }

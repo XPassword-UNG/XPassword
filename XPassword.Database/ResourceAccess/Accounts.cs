@@ -5,9 +5,8 @@ using XPassword.Security;
 
 namespace XPassword.Database.ResourceAccess;
 
-internal sealed class Accounts(int? userId = null) : IAccounts
+internal sealed class Accounts : IAccounts
 {
-    private readonly int? _userId = userId;
     private readonly DatabaseContext _database = new();
 
     public bool CreateAccount(string username, string email, string password)
@@ -65,7 +64,7 @@ internal sealed class Accounts(int? userId = null) : IAccounts
         command.CommandText = sql;
 
         var reader = command.ExecuteReader();
-        var accList = Builder.BuildAccount(reader);
+        var accList = Builder.BuildAccounts(reader);
 
         if (accList != null && accList.Count == 1)
             return accList[0];

@@ -4,16 +4,18 @@ namespace XPassword.Security;
 
 public static class EncryptionManager
 {
-    public static string? EncryptSecondaryPassword(string secondaryPassword, string primaryPassword)
+    public static string? Encrypt(this string? targetString, string passwordKey)
     {
         try
         {
+            if (targetString == null)
+                return targetString;
 
             var salt = new byte[16];
 
             RandomNumberGenerator.Fill(salt);
 
-            var key = GenerateKey(primaryPassword, salt);
+            var key = GenerateKey(passwordKey, salt);
 
             using var aes = Aes.Create();
 
@@ -29,7 +31,7 @@ public static class EncryptionManager
             using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
             using (var writer = new StreamWriter(cs))
             {
-                writer.Write(secondaryPassword);
+                writer.Write(targetString);
             }
 
             var encryptedData = ms.ToArray();
@@ -38,14 +40,17 @@ public static class EncryptionManager
         catch { return null; }
     }
 
-    public static string? DecryptSecondaryPassword(string encryptedPassword, string primaryPassword)
+    public static string? Decrypt(this string? targetString, string passwordKey)
     {
         try
         {
-            string[] parts = encryptedPassword.Split(':');
+            if (targetString == null)
+                return targetString;
+
+            string[] parts = targetString.Split(':');
             var salt = Convert.FromBase64String(parts[0]);
             var encryptedBytes = Convert.FromBase64String(parts[1]);
-            var key = GenerateKey(primaryPassword, salt);
+            var key = GenerateKey(passwordKey, salt);
 
             using var aes = Aes.Create();
             aes.Key = key;

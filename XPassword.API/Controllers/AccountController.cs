@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 using XPassword.API.Models.Requests;
 using XPassword.Database.Logic;
 using XPassword.Database.Model.Exceptions;
@@ -12,8 +11,6 @@ namespace XPassword.API.Controllers;
 [Route("[controller]")]
 public class AccountController : ControllerBase
 {
-    public AccountController() { }
-
     [HttpPost("LogIn")]
     public ObjectResult RequestLoginToken([FromBody] Models.Requests.LoginRequest loginRequest)
     {
@@ -25,7 +22,7 @@ public class AccountController : ControllerBase
             if (!validCredentials) 
                 return Ok("Email and/or password are/is invalid!");
 
-            var token = JwtTokenManager.GenerateJwtToken(loginRequest.Email, 300);
+            var token = JwtTokenManager.GenerateJwtToken(loginRequest.Email, loginRequest.Password, 300);
 
             return Ok(new {  accessToken = token, expiresIn = 300 });
         }
@@ -51,7 +48,7 @@ public class AccountController : ControllerBase
             if (!createdAccount)
                 return Ok("Unexpected error");
 
-            var token = JwtTokenManager.GenerateJwtToken(request.Email, 300);
+            var token = JwtTokenManager.GenerateJwtToken(request.Email, request.Password, 300);
 
             return Ok(new { accessToken = token, expiresIn = 300 });
         }
@@ -70,9 +67,8 @@ public class AccountController : ControllerBase
     [HttpDelete("DeleteAccount")]
     public ObjectResult DeteleAccount()
     {
-        var username = User.Identity?.Name;
-        var userId = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+        var (email, password) = JwtTokenManager.ExtractEmailAndPassword(User);
 
-        return Ok(new { message = "This is a protected API endpoint", username, userId });
+        return Ok(new { message = "This is a protected API endpoint" });
     }
 }
