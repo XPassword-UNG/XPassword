@@ -34,22 +34,23 @@ internal static class Program
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
+                ValidIssuer = "MyAuthServer",
                 ValidateAudience = true,
+                ValidAudience = "MyApi",
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                //ValidIssuer = "https://yourdomain.com"
-                //ValidAudience = "https://yourdomain.com"
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtTokenManager.SupSecretKey))
             };
         });
 
         var app = builder.Build();
         app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-        //app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader());
+        app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader());
 
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
+        app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
         app.Run();

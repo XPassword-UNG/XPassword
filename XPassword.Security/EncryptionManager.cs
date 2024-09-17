@@ -4,6 +4,13 @@ namespace XPassword.Security;
 
 public static class EncryptionManager
 {
+    public static string GenerateRandomKey()
+    {
+        var key = new byte[32]; // 256 bits
+        RandomNumberGenerator.Fill(key);
+        return Convert.ToBase64String(key);
+    }
+
     public static string? Encrypt(this string? targetString, string passwordKey)
     {
         try

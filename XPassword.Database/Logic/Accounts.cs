@@ -22,11 +22,11 @@ public sealed class Accounts : IDisposable
         if (password != confirmedPassword)
             validation.AddError("Passwords must match!");
 
+        if (_resourceAccess.CheckIfAccountExists(email))
+            validation.AddError("Account already exist");
+
         if (validation.HasError)
             throw validation;
-
-        if (!_resourceAccess.CheckIfAccountExists(email))
-            return false;
 
         return _resourceAccess.CreateAccount(username, email, password);
     }

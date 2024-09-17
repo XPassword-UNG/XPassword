@@ -21,19 +21,21 @@ public static class JwtTokenManager
 
     public static string GenerateJwtToken(string email, string password, int lifetimeInSeconds)
     {
+        var encryption_key = EncryptionManager.GenerateRandomKey();
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, email),
-            new Claim(JwtRegisteredClaimNames.Sub, password),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.NameIdentifier, password.Encrypt(encryption_key)!),
+            new Claim(ClaimTypes.UserData, encryption_key),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SupSecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(
-            //issuer: "YourIssuer",
-            //audience: "YourAudience",
             claims: claims,
+            issuer: "MyAuthServer",
+            audience: "MyApi",
             expires: DateTime.Now.AddSeconds(lifetimeInSeconds),
             signingCredentials: creds);
 
@@ -42,10 +44,10 @@ public static class JwtTokenManager
 
     public static (string email, string password) ExtractEmailAndPassword(ClaimsPrincipal user)
     {
-        var claims = user.Claims.Where(c => c.Type == JwtRegisteredClaimNames.Sub).ToArray();
-        var email = claims[0]?.Value!;
-        var passrd = claims[1]?.Value!;
+        var email = user.Claims.Where(c => c.Type == ClaimTypes.Email).ToList().First().Value;
+        var passrd = user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).ToList().First().Value;
+        var key = user.Claims.Where(c => c.Type == ClaimTypes.UserData).ToList().First().Value;
 
-        return (email, passrd);
+        return (email, passrd.Decrypt(key)!);
     }
 }

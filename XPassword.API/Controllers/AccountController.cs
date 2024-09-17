@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XPassword.API.Models.Requests;
+using XPassword.API.Models.Response;
 using XPassword.Database.Logic;
 using XPassword.Database.Model.Exceptions;
 using XPassword.Security;
@@ -20,11 +21,11 @@ public class AccountController : ControllerBase
             var validCredentials = logic.LogIn(loginRequest.Email, loginRequest.Password);
 
             if (!validCredentials) 
-                return Ok("Email and/or password are/is invalid!");
+                return Ok(new BaseResponse() { Success = false, Error = "Dados inválidos" });
 
             var token = JwtTokenManager.GenerateJwtToken(loginRequest.Email, loginRequest.Password, 300);
 
-            return Ok(new {  accessToken = token, expiresIn = 300 });
+            return Ok(new TokenResponse() { Token = token, LifeTime = 600 });
         }
         catch (ValidationException ex)
         {
@@ -46,11 +47,11 @@ public class AccountController : ControllerBase
             var createdAccount = logic.CreateAccount(request.Username, request.Email, request.Password, request.ConfirmPassword);
 
             if (!createdAccount)
-                return Ok("Unexpected error");
+                return Ok(new BaseResponse() { Success = false, Error = "Unexpected Error" });
 
             var token = JwtTokenManager.GenerateJwtToken(request.Email, request.Password, 300);
 
-            return Ok(new { accessToken = token, expiresIn = 300 });
+            return Ok(new TokenResponse() { Token = token, LifeTime = 600 });
         }
         catch (ValidationException ex)
         {
