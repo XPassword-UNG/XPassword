@@ -18,7 +18,7 @@ internal static class Utils
                 Name = reg.Name.Encrypt(passwordKey),
                 Description = reg.Description.Encrypt(passwordKey),
                 Email = reg.Email.Encrypt(passwordKey),
-                Password = reg.Password.Decrypt(passwordKey)
+                Password = reg.Password.Encrypt(passwordKey)
             });
         }
 

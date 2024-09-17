@@ -23,11 +23,11 @@ public class RegisterController : ControllerBase
 
             using var regLogic = new Registers();
 
-            var registers = Program.Mapper.Map<List<Database.Model.Register>>(request.RegisterList);
+            var registers = Program.Mapper!.Map<List<Database.Model.Register>>(request.RegisterList);
             var total = registers.Count;
             var inserted = regLogic.AddRegisters(registers, email, password);
 
-            return Ok($"{inserted} of {total} inserted with success!");
+            return Ok(new MessageResponse() { Message = $"{inserted} of {total} inserted with success!" });
         }
         catch (ValidationException ex)
         {
@@ -52,7 +52,7 @@ public class RegisterController : ControllerBase
 
             var qr = regLogic.GetRegisters(email, password);
 
-            var registers = Program.Mapper.Map<List<Register>>(qr);
+            var registers = Program.Mapper!.Map<List<Register>>(qr);
             var response = new RegistersResponse()
             {
                 Registers = registers,

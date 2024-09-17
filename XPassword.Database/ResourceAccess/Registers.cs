@@ -13,16 +13,16 @@ internal sealed class Registers : IRegisters
     {
         using var command = _database.CreateCommand();
 
-        var sql = @$"INSERT INTO {DatabaseContext.REG_TABLE} (Name, Email, Description, Password) VALUES ";
+        var sql = @$"INSERT INTO {DatabaseContext.REG_TABLE} (UserId, Name, Email, Description, Password) VALUES ";
         var parameters = new List<SQLiteParameter>();
 
         for (int i = 0; i < registers.Count; i++)
         {
-            sql += $"(@Name{i}, @UserId{i}, @Email{i}, @Description{i}, @Password{i}),";
+            sql += $"(@UserId{i}, @Name{i}, @Email{i}, @Description{i}, @Password{i}),";
             parameters.AddRange(
             [
-                new SQLiteParameter($"@Name{i}", registers[i].Name),
                 new SQLiteParameter($"@UserId{i}", userId),
+                new SQLiteParameter($"@Name{i}", registers[i].Name),
                 new SQLiteParameter($"@Email{i}", registers[i].Email),
                 new SQLiteParameter($"@Description{i}", registers[i].Description),
                 new SQLiteParameter($"@Password{i}", registers[i].Password)

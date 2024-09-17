@@ -69,7 +69,8 @@ public class AccountController : ControllerBase
     public ObjectResult DeteleAccount()
     {
         var (email, password) = JwtTokenManager.ExtractEmailAndPassword(User);
+        var q = 5;
 
-        return Ok(new { message = "This is a protected API endpoint" });
+        return Ok(new MessageResponse() { Message = $"Sua conta foi deletada junto dos seus {q} registros" });
     }
 }
