@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using XPassword.API.Models;
 using XPassword.API.Models.Requests;
+using XPassword.API.Models.Response;
 using XPassword.Database.Logic;
 using XPassword.Database.Model.Exceptions;
 using XPassword.Security;
@@ -21,7 +23,7 @@ public class RegisterController : ControllerBase
 
             using var regLogic = new Registers();
 
-            var registers = Program.Mapper!.Map<List<Database.Model.Register>>(request.RegisterList);
+            var registers = Program.Mapper.Map<List<Database.Model.Register>>(request.RegisterList);
             var total = registers.Count;
             var inserted = regLogic.AddRegisters(registers, email, password);
 
@@ -48,8 +50,15 @@ public class RegisterController : ControllerBase
 
             using var regLogic = new Registers();
 
+            var qr = regLogic.GetRegisters(email, password);
 
-            return Ok("");
+            var registers = Program.Mapper.Map<List<Register>>(qr);
+            var response = new RegistersResponse()
+            {
+                Registers = registers,
+            };
+
+            return Ok(response);
         }
         catch (ValidationException ex)
         {
