@@ -8,22 +8,25 @@ namespace XPassword.API;
 
 internal static class Program
 {
-    internal static bool Created = false;
-    internal static IMapper? Mapper;
+    internal static readonly IMapper Mapper = new MapperConfiguration(cfg =>
+    {
+        cfg.AddProfile<MappingProfile>();
+    }).CreateMapper();
 
     internal static void Main(string[] args)
     {
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<MappingProfile>();
-        });
-        Mapper = config.CreateMapper();
-
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddCors();
         builder.Services.AddSwaggerGen();
+        builder.WebHost.ConfigureKestrel(op =>
+        {
+            op.ListenAnyIP(4201, listener =>
+            {
+                listener.UseHttps();
+            });
+        });
 
         builder.Services.AddAuthentication(options =>
         {
@@ -45,7 +48,6 @@ internal static class Program
 
         var app = builder.Build();
         app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-        app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader());
 
         app.UseSwagger();
         app.UseSwaggerUI();

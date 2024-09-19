@@ -1,4 +1,5 @@
 ﻿/.vs
+/.github
 /XPassword.API/bin
 /XPassword.API/obj
 /XPassword.API/XPassword.sqlite
