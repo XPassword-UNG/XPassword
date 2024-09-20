@@ -1,7 +1,6 @@
-﻿namespace XPassword.API.Models.Response
+﻿namespace XPassword.API.Models.Response;
+
+public class MessageResponse : BaseResponse
 {
-    public class MessageResponse : BaseResponse
-    {
-        public string Message { get; set; } = "Executado com sucesso!";
-    }
+    public string Message { get; set; } = "Executado com sucesso!";
 }
