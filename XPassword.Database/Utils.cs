@@ -5,6 +5,8 @@ namespace XPassword.Database;
 
 internal static class Utils
 {
+    internal static Register Encrypt(this Register reg, string passwordKey) => new List<Register>(collection: [reg!]).Encrypt(passwordKey).FirstOrDefault()!;
+
     internal static List<Register> Encrypt(this List<Register> regs, string passwordKey)
     {
         var encryptedRegisters = new List<Register>();

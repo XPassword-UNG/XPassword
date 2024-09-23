@@ -14,7 +14,7 @@ namespace XPassword.API.Controllers;
 public class RegisterController : ControllerBase
 {
     [Authorize]
-    [HttpPut("AddRegisters")]
+    [HttpPost("AddRegisters")]
     public ObjectResult AddRegisters([FromBody] AddRegisterRequest request)
     {
         try
@@ -51,7 +51,6 @@ public class RegisterController : ControllerBase
             using var regLogic = new Registers();
 
             var qr = regLogic.GetRegisters(email, password);
-
             var registers = Program.Mapper!.Map<List<Register>>(qr);
             var response = new RegistersResponse()
             {
@@ -59,6 +58,58 @@ public class RegisterController : ControllerBase
             };
 
             return Ok(response);
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.ErrosList);
+        }
+        catch (Exception e)
+        {
+            var validation = new ValidationException(e, e.Message);
+            return BadRequest(validation.ErrosList);
+        }
+    }
+
+    [Authorize]
+    [HttpPut("UpdateRegister")]
+    public ObjectResult UpdateRegister([FromBody] Register register)
+    {
+        try
+        {
+            var (email, password) = JwtTokenManager.ExtractEmailAndPassword(User);
+
+            using var regLogic = new Registers();
+
+            var reg = Program.Mapper.Map<Register, Database.Model.Register>(register);
+            var success = regLogic.UpdateRegister(email, password, reg);
+
+            return Ok(new BaseResponse() { Success = success, Error = "Unknown Error :(" });
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.ErrosList);
+        }
+        catch (Exception e)
+        {
+            var validation = new ValidationException(e, e.Message);
+            return BadRequest(validation.ErrosList);
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("DeleteRegister")]
+    public ObjectResult DeleteRegister([FromBody] Register register)
+    {
+        try
+        {
+            var (email, password) = JwtTokenManager.ExtractEmailAndPassword(User);
+
+            using var regLogic = new Registers();
+
+            var reg = Program.Mapper.Map<Register, Database.Model.Register>(register);
+            var success = regLogic.DeleteRegister(email, password, reg);
+
+            return Ok(new BaseResponse() { Success = success, Error = "Unknown Error :(" });
         }
         catch (ValidationException ex)
         {

@@ -46,6 +46,28 @@ internal sealed class Accounts : IAccounts
         return Builder.BuildEmailExist(reader);
     }
 
+    public bool UpdateAccount(string email, string password, string newUsername, string newEmail)
+    {
+        using var command = _database.CreateCommand();
+
+        var sql = @$"UPDATE 
+                        {DatabaseContext.ACC_TABLE}
+                    SET
+                        Name = @newUsername,
+                        Email = @newEmail
+                    WHERE
+                        Email = @email AND
+                        HPassword = @hPassword";
+
+        command.Parameters.AddWithValue("@newUsername", email);
+        command.Parameters.AddWithValue("@newEmail", email);
+        command.Parameters.AddWithValue("@email", email);
+        command.Parameters.AddWithValue("@hPassword", password);
+        command.CommandText = sql;
+
+        return command.ExecuteNonQuery() == 1;
+    }
+
     public Account? GetAccount(string email, string password)
     {
         using var command = _database.CreateCommand();
@@ -70,6 +92,23 @@ internal sealed class Accounts : IAccounts
             return accList[0];
 
         return null;
+    }
+
+    public int DeleteAccount(string email, string password)
+    {
+        using var command = _database.CreateCommand();
+
+        var sql = @$"DELETE FROM
+                        {DatabaseContext.ACC_TABLE}
+                    WHERE
+                        Email = @email AND
+                        HPassword = @pass";
+
+        command.Parameters.AddWithValue("@email", email);
+        command.Parameters.AddWithValue("@pass", password);
+        command.CommandText = sql;
+
+        return command.ExecuteNonQuery();
     }
 
     #region [ Dispose ]

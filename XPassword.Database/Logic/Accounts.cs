@@ -44,7 +44,27 @@ public sealed class Accounts : IDisposable
         return Hasher.VerifyPassword(account.HPassword, password);
     }
 
+    public bool UpdateAccount(string email, string password, string newUsername, string newEmail)
+    {
+        var currentAccount = GetAccount(email, password);
+
+        if (currentAccount == null)
+            return false;
+
+        return _resourceAccess.UpdateAccount(email, password, newUsername, newEmail);
+    }
+
     public Account? GetAccount(string email, string password) => _resourceAccess.GetAccount(email, password);
+
+    public (bool deleted, int registers) DeleteAccount(string email, string password)
+    {
+        var currentAccount = GetAccount(email, password);
+
+        if (currentAccount == null)
+            return (false, 0);
+
+        return (true, _resourceAccess.DeleteAccount(email, password));
+    }
 
     #region [ Util ]
     private static bool IsValidEmail(string email)

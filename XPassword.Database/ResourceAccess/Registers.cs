@@ -58,6 +58,52 @@ internal sealed class Registers : IRegisters
         return Builder.BuildRegister(reader);
     }
 
+    public bool UpdateRegister(Register register)
+    {
+        using var command = _database.CreateCommand();
+
+        var sql = @$"UPDATE
+                        {DatabaseContext.REG_TABLE}
+                    SET
+                        Name = @Name,
+                        Email = @Email,
+                        Description = @Description,
+                        Password = @Password
+                    WHERE
+                        Id = @Id AND
+                        UserId = @userId";
+
+        command.Parameters.AddWithValue("@Id", register.Id);
+        command.Parameters.AddWithValue("@userId", register.UserId);
+        command.Parameters.AddWithValue("@Name", register.Name);
+        command.Parameters.AddWithValue("@Email", register.Email);
+        command.Parameters.AddWithValue("@Description", register.Description);
+        command.Parameters.AddWithValue("@Password", register.Password);
+
+        command.CommandText = sql;
+
+        var res = command.ExecuteNonQuery();
+        return res == 1;
+    }
+
+    public bool DeleteRegister(Register register)
+    {
+        using var command = _database.CreateCommand();
+
+        var sql = @$"DELETE FROM
+                        {DatabaseContext.REG_TABLE}
+                    WHERE
+                        Id = @Id AND
+                        UserId = @userId";
+
+        command.Parameters.AddWithValue("@Id", register.Id);
+        command.Parameters.AddWithValue("@userId", register.UserId);
+        command.CommandText = sql;
+
+        var res = command.ExecuteNonQuery();
+        return res == 1;
+    }
+
     #region [ Dispose ]
     private void Dispose(bool disposing)
     {

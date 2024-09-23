@@ -27,6 +27,26 @@ public sealed class Registers : IDisposable
         return _resourceRegistersAccess.GetRegisters(account.Id).Decrypt(password);
     }
 
+    public bool UpdateRegister(string email, string password, Register register)
+    {
+        var account = _resourceAccountsAccess.GetAccount(email, password);
+
+        if (account == null)
+            return false;
+
+        return _resourceRegistersAccess.UpdateRegister(register.Encrypt(password));
+    }
+
+    public bool DeleteRegister(string email, string password, Register register)
+    {
+        var account = _resourceAccountsAccess.GetAccount(email, password);
+
+        if (account == null)
+            return false;
+
+        return _resourceRegistersAccess.DeleteRegister(register.Encrypt(password));
+    }
+
     #region [ Dispose ]
     private void Dispose(bool disposing)
     {

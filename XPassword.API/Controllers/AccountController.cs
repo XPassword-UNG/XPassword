@@ -66,7 +66,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("LogIn")]
-    public ObjectResult RequestLoginToken([FromBody] Models.Requests.LoginRequest loginRequest)
+    public ObjectResult RequestLoginToken([FromBody] LoginRequest loginRequest)
     {
         try
         {
@@ -121,9 +121,25 @@ public class AccountController : ControllerBase
     [HttpDelete("DeleteAccount")]
     public ObjectResult DeteleAccount()
     {
-        var (email, password) = JwtTokenManager.ExtractEmailAndPassword(User);
-        var q = 5;
+        try
+        {
+            var (email, password) = JwtTokenManager.ExtractEmailAndPassword(User);
+            using var logic = new Accounts();
+            var (deleted, registers) = logic.DeleteAccount(email, password);
 
-        return Ok(new MessageResponse() { Message = $"Sua conta foi deletada junto dos seus {q} registros" });
+            if (!deleted)
+                return Ok(new BaseResponse() { Success = false, Error = "Unexpected Error" });
+
+            return Ok(new MessageResponse() { Message = $"Sua conta foi deletada junto dos seus {registers} registros" });
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.ErrosList);
+        }
+        catch (Exception e)
+        {
+            var validation = new ValidationException(e, e.Message);
+            return BadRequest(validation.ErrosList);
+        }
     }
 }
